@@ -411,3 +411,264 @@ header .logo span {
     padding-top: 3rem;
     padding-bottom: 3rem;
 }
+
+/* ========================
+   AJUSTES PARA INVENTARIO (CARS.PHP)
+======================== */
+.inventory-page {
+    margin-top: 84px; /* Espacio para el header fijo */
+    padding-top: 2rem; /* Espacio superior general */
+    padding-bottom: 2rem;
+}
+.inventory-controls { /* Nuevo contenedor para ordenar y botón */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap; /* Permite que se envuelva en pantallas pequeñas */
+    gap: 1rem; /* Espacio entre elementos */
+    padding-bottom: 1.5rem;
+    margin-bottom: 2.5rem; /* Espacio antes de la lista de carros */
+    border-bottom: 1px solid #e0e0e0;
+}
+.inventory-header-info h1 { /* Título del inventario */
+    font-size: 2rem;
+    font-weight: 700;
+    margin: 0;
+}
+.inventory-header-info p { /* Contador de vehículos */
+    margin: 0;
+    color: #555;
+    font-size: 0.9rem;
+}
+.inventory-actions { /* Contenedor para ordenar y botón agregar */
+    display: flex;
+    align-items: center;
+    gap: 1.5rem; /* Espacio entre ordenar y botón */
+    flex-wrap: wrap;
+}
+.sort-options { /* Opciones de ordenamiento */
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.sort-options label {
+    font-weight: 500;
+    white-space: nowrap;
+}
+.sort-options select {
+    padding: 8px 12px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    background: #fff;
+    font-size: 0.9rem;
+}
+.toggle-form-container { /* Botón Agregar */
+   padding: 0;
+   margin: 0;
+   text-align: right; /* Mueve el botón a la derecha */
+}
+#toggleFormBtn {
+    padding: 10px 20px;
+    font-size: 1rem;
+    font-weight: 500;
+}
+#toggleFormBtn .bx {
+    vertical-align: middle;
+    margin-right: 5px;
+    font-size: 1.1rem;
+}
+/* Formulario oculto (sin cambios) */
+.add-car-section { max-height: 0; overflow: hidden; padding-top: 0; padding-bottom: 0; transition: max-height 0.7s ease-in-out, padding 0.7s ease-in-out; }
+.add-car-section.is-visible { max-height: 2000px; padding-top: 2rem; padding-bottom: 2rem; }
+
+/* ========================
+   ESTILOS PARA COMPARACIÓN (NUEVO DISEÑO)
+======================== */
+
+/* Botón "Añadir a Comparar" dentro de la tarjeta */
+.cars-container .box .add-compare-btn {
+    display: inline-flex; /* Para alinear icono y texto */
+    align-items: center;
+    background-color: #eee;
+    color: var(--text-color);
+    border: 1px solid #ddd;
+    padding: 8px 15px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s, color 0.3s;
+    margin-top: 10px; /* Espacio arriba */
+}
+.cars-container .box .add-compare-btn:hover {
+    background-color: #ddd;
+}
+.cars-container .box .add-compare-btn .bx {
+    font-size: 1.1rem;
+    margin-right: 5px;
+}
+/* Estilo para cuando el botón está 'seleccionado' */
+.cars-container .box .add-compare-btn.selected {
+    background-color: var(--main-color);
+    color: var(--bg-color);
+    border-color: var(--main-color);
+}
+.cars-container .box .add-compare-btn.selected .bx {
+    content: '\F325'; /* Icono de check (si usas Boxicons v2.1+) o similar */
+}
+
+/* Barra de Comparación Inferior */
+.compare-bar {
+    position: fixed;
+    bottom: -100px; /* Oculta por defecto */
+    left: 0;
+    width: 100%;
+    background-color: var(--text-color);
+    color: var(--bg-color);
+    box-shadow: 0 -5px 15px rgba(0,0,0,0.15);
+    padding: 10px 0;
+    z-index: 100;
+    transition: bottom 0.4s ease-in-out;
+}
+.compare-bar.visible {
+    bottom: 0; /* Muestra la barra */
+}
+.compare-bar-content {
+    max-width: 1068px; /* Mismo ancho que .container */
+    margin: 0 auto;
+    padding: 0 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.compare-items {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+.compare-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-size: 0.8rem;
+}
+.compare-item img {
+    width: 40px;
+    height: 30px;
+    object-fit: cover;
+    border-radius: 3px;
+}
+.compare-item button { /* Botón para quitar item */
+    background: none;
+    border: none;
+    color: var(--bg-color);
+    font-size: 1rem;
+    cursor: pointer;
+    padding: 0 5px;
+}
+#compareNowBtn { /* Botón principal de la barra */
+    padding: 10px 20px;
+    font-weight: 600;
+}
+
+/* ========================
+   ESTILOS PARA SECCIÓN DE FILTROS (ARRIBA)
+======================== */
+.filter-section {
+    background: var(--bg-color);
+    padding: 1.5rem 1rem;
+    margin-bottom: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+}
+
+.filter-section h3 {
+    font-size: 1.3rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.8rem;
+    border-bottom: 1px solid #eee;
+}
+
+.filter-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem 2rem;
+}
+
+.filter-group h4 {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+.filter-group label {
+    display: block;
+    margin-bottom: 0.7rem;
+    font-size: 0.9rem;
+    cursor: pointer;
+}
+
+.filter-group input[type="checkbox"] {
+    margin-right: 8px;
+    transform: scale(1.1);
+}
+
+.marca-filter-item.hidden {
+    display: none;
+}
+
+.filter-group .view-all {
+    font-size: 0.85rem;
+    color: var(--main-color);
+    text-decoration: underline;
+    display: inline-block;
+    margin-top: 5px;
+    cursor: pointer;
+}
+
+.range-inputs {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.range-inputs input[type="number"] {
+    width: 100%;
+    padding: 8px 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 0.9rem;
+    background: #f6f6f6;
+    -moz-appearance: textfield;
+}
+.range-inputs input::-webkit-outer-spin-button,
+.range-inputs input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.filter-buttons {
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #eee;
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end; /* Alinea botones a la derecha */
+}
+
+.filter-apply-btn {
+    padding: 10px 25px;
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.filter-clear-link {
+    display: inline-block;
+    padding: 10px 15px;
+    font-size: 0.9rem;
+    color: #555;
+    text-decoration: underline;
+}

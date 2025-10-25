@@ -30,6 +30,14 @@ $imagenes = $stmt_imagenes->get_result()->fetch_all(MYSQLI_ASSOC);
     <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
     
     <style>
+
+        /* Fuerza la visibilidad del formulario en esta página */
+        .add-car-section {
+            display: block !important;
+            max-height: none !important; /* Anula la regla que lo oculta */
+            padding-top: 3rem !important; /* Restaura el padding */
+            padding-bottom: 3rem !important;
+        }
         /* Estilos generales del formulario de edición */
         .add-car-section { padding: 3rem 0; }
         .add-car-form-container {
