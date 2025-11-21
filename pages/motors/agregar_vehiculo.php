@@ -39,7 +39,7 @@ try {
     $sql_vehiculo = "INSERT INTO vehiculos (placa, marca, modelo, anio, precio_lista, estado, vendedor_id, descripcion) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
     $stmt_vehiculo = $conn->prepare($sql_vehiculo);
     // Se incluye la variable $estado en la consulta
-    $stmt_vehiculo->bind_param("sssisdis", $placa, $marca, $modelo, $anio, $precio_lista, $estado, $vendedor_id, $descripcion);
+    $stmt_vehiculo->bind_param("sssissis", $placa, $marca, $modelo, $anio, $precio_lista, $estado, $vendedor_id, $descripcion);
     $stmt_vehiculo->execute();
 
     // 7. Obtener el ID del vehículo insertado

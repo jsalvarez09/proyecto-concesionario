@@ -1,6 +1,6 @@
 <?php
 session_start();
-require_once(__DIR__ . '/../../includes/conexion.php');
+require_once(__DIR__ . '/../../includes/conexion.php'); // Asegúrate de que la ruta sea correcta
 $es_privilegiado = isset($_SESSION['usuario_rol']) && in_array($_SESSION['usuario_rol'], ['administrador', 'vendedor']);
 
 // Lógica de ordenamiento
@@ -9,6 +9,7 @@ $order_by_sql = "ORDER BY v.vehiculo_id DESC";
 if ($sort_option == 'price_asc') { $order_by_sql = "ORDER BY v.precio_lista ASC"; }
 elseif ($sort_option == 'price_desc') { $order_by_sql = "ORDER BY v.precio_lista DESC"; }
 
+// Consulta de vehículos
 $sql = "SELECT 
             v.vehiculo_id, v.marca, v.modelo, v.precio_lista,
             COALESCE(vi.imagen_url, v.imagen_url) AS imagen_final
@@ -34,6 +35,18 @@ $total_vehiculos = $resultado ? $resultado->num_rows : 0;
     <?php include '../../includes/header.php'; ?>
 
     <div class="inventory-page container">
+        
+        <?php if(isset($_GET['status']) && $_GET['status'] == 'success'): ?>
+            <div style="background: #d4edda; color: #155724; padding: 15px; margin-bottom: 20px; border-radius: 5px; border: 1px solid #c3e6cb;">
+                ¡Vehículo publicado exitosamente!
+            </div>
+        <?php endif; ?>
+        <?php if(isset($_GET['error'])): ?>
+            <div style="background: #f8d7da; color: #721c24; padding: 15px; margin-bottom: 20px; border-radius: 5px; border: 1px solid #f5c6cb;">
+                Error: <?php echo htmlspecialchars($_GET['error']); ?>
+            </div>
+        <?php endif; ?>
+
         <div class="inventory-controls">
              <div class="inventory-header-info">
                 <h1>Nuestro Inventario</h1>
@@ -48,6 +61,7 @@ $total_vehiculos = $resultado ? $resultado->num_rows : 0;
                         <option value="price_desc" <?php echo ($sort_option == 'price_desc') ? 'selected' : ''; ?>>Precio: Mayor a menor</option>
                     </select>
                 </div>
+                
                 <?php if ($es_privilegiado): ?>
                 <div class="toggle-form-container">
                     <button id="toggleFormBtn" class="btn"><i class='bx bx-plus'></i> Agregar Vehículo</button>
@@ -59,7 +73,47 @@ $total_vehiculos = $resultado ? $resultado->num_rows : 0;
 
     <?php if ($es_privilegiado): ?>
     <section class="add-car-section">
-        </section>
+        <div class="container">
+            <div class="add-car-form-container">
+                <form action="agregar_vehiculo.php" method="POST" enctype="multipart/form-data">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="placa">Placa</label>
+                            <input type="text" id="placa" name="placa" placeholder="AAA123" required pattern="[A-Z]{3}[0-9]{3}" title="3 Letras mayúsculas y 3 números">
+                        </div>
+                        <div class="form-group">
+                            <label for="marca">Marca</label>
+                            <input type="text" id="marca" name="marca" placeholder="Ej: Toyota" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="modelo">Modelo</label>
+                            <input type="text" id="modelo" name="modelo" placeholder="Ej: Corolla" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="anio">Año</label>
+                            <input type="number" id="anio" name="anio" placeholder="2024" required min="1900" max="2099">
+                        </div>
+                        <div class="form-group full-width">
+                            <label for="precio_lista">Precio</label>
+                            <input type="number" id="precio_lista" name="precio_lista" placeholder="Ej: 50000000" required>
+                        </div>
+                        <div class="form-group full-width">
+                            <label for="descripcion">Descripción</label>
+                            <textarea id="descripcion" name="descripcion" rows="3" placeholder="Detalles del vehículo, estado, extras..."></textarea>
+                        </div>
+                        <div class="form-group full-width">
+                            <label class="file-upload-label" for="imagenes">
+                                <i class='bx bxs-image-add'></i> Seleccionar Imágenes
+                            </label>
+                            <input type="file" name="imagenes[]" id="imagenes" multiple accept="image/*" required>
+                            <div id="file-name-display">Ningún archivo seleccionado</div>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn" style="width: 100%;">Publicar Vehículo</button>
+                </form>
+            </div>
+        </div>
+    </section>
     <?php endif; ?>
 
     <section class="cars" id="cars" style="padding-top: 0;"> 
@@ -77,9 +131,11 @@ $total_vehiculos = $resultado ? $resultado->num_rows : 0;
                         <div class="box-content">
                             <h3><?php echo htmlspecialchars($vehiculo['marca'] . ' ' . $vehiculo['modelo']); ?></h3>
                             <span class="price">$<?php echo number_format($vehiculo['precio_lista'], 0, ',', '.'); ?></span>
+                            
                             <button class="add-compare-btn" onclick="toggleCompare(this, <?php echo $vehiculo['vehiculo_id']; ?>)">
                                 <i class='bx bx-git-compare'></i> Añadir a Comparar
                             </button>
+                            
                             <a href="vehiculo_detalles.php?id=<?php echo $vehiculo['vehiculo_id']; ?>" class="btn" style="margin-top: 10px;">Ver Detalles</a>
                         </div>
                     </div>
@@ -96,23 +152,50 @@ $total_vehiculos = $resultado ? $resultado->num_rows : 0;
 
     <div class="compare-bar" id="compareBar">
         <div class="compare-bar-content">
-            <div class="compare-items" id="compareItems">
-                </div>
+            <div class="compare-items" id="compareItems"></div>
             <button id="compareNowBtn" class="btn" onclick="goToComparePage()">Comparar Ahora</button>
         </div>
     </div>
+
     <script>
-        // Script para mostrar/ocultar formulario
+        // === 1. Lógica del Botón Agregar Vehículo ===
         const toggleBtn = document.getElementById('toggleFormBtn');
         const formSection = document.querySelector('.add-car-section');
-        if(toggleBtn && formSection) { /* ... tu código ... */ }
-        // Script para nombres de archivo
+
+        if(toggleBtn && formSection) {
+            toggleBtn.addEventListener('click', () => {
+                // Alternar la clase que muestra/oculta el formulario (definida en tu style.css)
+                formSection.classList.toggle('is-visible');
+                
+                // Cambiar el texto del botón visualmente
+                if (formSection.classList.contains('is-visible')) {
+                    toggleBtn.innerHTML = "<i class='bx bx-minus'></i> Cancelar";
+                    toggleBtn.style.backgroundColor = "#666"; // Opcional: cambiar color a gris
+                } else {
+                    toggleBtn.innerHTML = "<i class='bx bx-plus'></i> Agregar Vehículo";
+                    toggleBtn.style.backgroundColor = ""; // Volver al color original
+                }
+            });
+        }
+
+        // === 2. Lógica para mostrar nombres de archivos al subir fotos ===
         const fileInput = document.getElementById('imagenes');
         const fileNameDisplay = document.getElementById('file-name-display');
-        if(fileInput && fileNameDisplay) { /* ... tu código ... */ }
 
-        // === INICIO: Nueva Lógica para la Comparación ===
-        let compareList = []; // Guarda objetos {id, name, img}
+        if(fileInput && fileNameDisplay) {
+            fileInput.addEventListener('change', () => {
+                if(fileInput.files.length > 0) {
+                    fileNameDisplay.textContent = `${fileInput.files.length} archivos seleccionados`;
+                    fileNameDisplay.style.color = "#d90429"; // Color rojo de tu tema
+                } else {
+                    fileNameDisplay.textContent = 'Ningún archivo seleccionado';
+                    fileNameDisplay.style.color = "#6c757d";
+                }
+            });
+        }
+
+        // === 3. Lógica de Comparación (Ya la tenías, la mantengo igual) ===
+        let compareList = []; 
         const MAX_COMPARE_ITEMS = 4;
         const compareBar = document.getElementById('compareBar');
         const compareItemsContainer = document.getElementById('compareItems');
@@ -124,11 +207,11 @@ $total_vehiculos = $resultado ? $resultado->num_rows : 0;
             const vehicleImg = vehicleBox.dataset.img;
             const index = compareList.findIndex(item => item.id === vehicleId);
 
-            if (index > -1) { // Si ya está en la lista, quitarlo
+            if (index > -1) { 
                 compareList.splice(index, 1);
                 buttonElement.classList.remove('selected');
                 buttonElement.innerHTML = "<i class='bx bx-git-compare'></i> Añadir a Comparar";
-            } else { // Si no está, añadirlo (si hay espacio)
+            } else { 
                 if (compareList.length >= MAX_COMPARE_ITEMS) {
                     alert(`Puedes comparar un máximo de ${MAX_COMPARE_ITEMS} vehículos.`);
                     return;
@@ -141,7 +224,6 @@ $total_vehiculos = $resultado ? $resultado->num_rows : 0;
         }
 
         function removeFromCompare(vehicleId) {
-            // Encuentra el botón correspondiente en la tarjeta y simula un clic para quitarlo
             const buttonInCard = document.querySelector(`.box[data-id="${vehicleId}"] .add-compare-btn`);
             if(buttonInCard) {
                 toggleCompare(buttonInCard, vehicleId);
@@ -149,7 +231,7 @@ $total_vehiculos = $resultado ? $resultado->num_rows : 0;
         }
 
         function renderCompareBar() {
-            compareItemsContainer.innerHTML = ''; // Limpiar items actuales
+            compareItemsContainer.innerHTML = ''; 
             if (compareList.length > 0) {
                 compareBar.classList.add('visible');
                 compareList.forEach(item => {
@@ -165,7 +247,6 @@ $total_vehiculos = $resultado ? $resultado->num_rows : 0;
             } else {
                 compareBar.classList.remove('visible');
             }
-            // Habilitar/deshabilitar botón principal
             compareNowBtn.disabled = compareList.length < 2;
             compareNowBtn.textContent = `Comparar Ahora (${compareList.length})`;
         }
@@ -177,9 +258,7 @@ $total_vehiculos = $resultado ? $resultado->num_rows : 0;
             }
         }
         
-        // Inicializar la barra al cargar
         renderCompareBar();
-        // === FIN: Nueva Lógica para la Comparación ===
     </script>
 </body>
 </html>

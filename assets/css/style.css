@@ -672,3 +672,62 @@ header .logo span {
     color: #555;
     text-decoration: underline;
 }
+
+/* --- ESTILOS DEL DASHBOARD --- */
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.stat-card {
+    background: #fff;
+    padding: 25px;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-left: 5px solid var(--main-color); /* Borde rojo a la izquierda */
+}
+
+.stat-info h4 {
+    font-size: 0.9rem;
+    color: #777;
+    margin-bottom: 5px;
+    text-transform: uppercase;
+}
+
+.stat-info p {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #333;
+    margin: 0;
+}
+
+.stat-icon {
+    font-size: 2.5rem;
+    color: #eee; /* Icono gris claro de fondo */
+}
+
+/* Colores específicos para cada tarjeta */
+.stat-card.active-cars { border-left-color: #007bff; } /* Azul */
+.stat-card.sold-cars { border-left-color: #28a745; }   /* Verde */
+.stat-card.earnings { border-left-color: #ffc107; }    /* Amarillo */
+
+/* Estilo para el botón de vender */
+.actions .sold-btn { 
+    color: #28a745; /* Verde */
+    font-size: 1.4rem; /* Un poco más grande para destacar */
+}
+.actions .sold-btn:hover { 
+    color: #1e7e34; 
+    transform: scale(1.1); 
+}
+/* Deshabilitar visualmente si ya está vendido */
+.actions .sold-btn.disabled {
+    color: #ccc;
+    pointer-events: none;
+    cursor: default;
+}
