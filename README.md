@@ -99,22 +99,16 @@ Abre tu navegador e ingresa a: http://localhost/NOMBRE_DE_TU_CARPETA/📸
 
 ### Juan Sebastián Alvarez
 
-<div align="left">
-
-<a href="https://github.com/jsalvarez09" target="_blank">
-  <img src="https://img.shields.io/badge/GitHub-000000?style=for-the-badge&logo=github&logoColor=white"/>
-</a>
-
-<a href="https://www.linkedin.com/in/juan-sebastian-alvarez-huertas-a76b5a379" target="_blank">
-  <img src="https://img.shields.io/badge/LinkedIn-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white"/>
-</a>
-
-<a href="mailto:sebasalvare9707@gmail.com">
-  <img src="https://img.shields.io/badge/Email-D14836?style=for-the-badge&logo=gmail&logoColor=white"/>
-</a>
-
-</div>
-
-<br>
+<p align="left">
+  <a href="https://github.com/jsalvarez09" target="_blank">
+    <img alt="GitHub" src="https://img.shields.io/badge/GitHub-000000?style=for-the-badge&logo=github&logoColor=white">
+  </a>
+  <a href="https://www.linkedin.com/in/juan-sebastian-alvarez-huertas-a76b5a379" target="_blank">
+    <img alt="LinkedIn" src="https://img.shields.io/badge/LinkedIn-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white">
+  </a>
+  <a href="mailto:sebasalvare9707@gmail.com">
+    <img alt="Email" src="https://img.shields.io/badge/Email-D14836?style=for-the-badge&logo=gmail&logoColor=white">
+  </a>
+</p>
 
 Desarrollador apasionado por crear soluciones web eficientes y escalables.
