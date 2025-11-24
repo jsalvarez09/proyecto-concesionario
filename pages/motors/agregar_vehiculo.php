@@ -2,64 +2,65 @@
 session_start();
 require_once(__DIR__ . '/../../includes/conexion.php');
 
-// 1. Seguridad y verificación de rol
 if (!isset($_SESSION['usuario_rol']) || !in_array($_SESSION['usuario_rol'], ['administrador', 'vendedor'])) {
-    die("Acceso denegado. No tienes permiso para realizar esta acción.");
+    die("Acceso denegado.");
 }
 
-// 2. Verificar que los datos lleguen por POST
 if ($_SERVER["REQUEST_METHOD"] != "POST") {
     header('Location: cars.php');
     exit();
 }
 
-// 3. Recoger datos del formulario
 $placa = strtoupper(trim($_POST['placa']));
 $marca = $_POST['marca'];
 $modelo = $_POST['modelo'];
-$anio = $_POST['anio'];
-$precio_lista = $_POST['precio_lista'];
+$anio = (int) $_POST['anio']; // Castear a entero
+$precio_lista = (float) $_POST['precio_lista']; // Castear a float/decimal
 $descripcion = trim($_POST['descripcion']);
 $vendedor_id = $_SESSION['vendedor_id'];
-
-// LÍNEA CLAVE: Aquí aseguramos que el estado siempre sea 'Disponible'
 $estado = 'Disponible'; 
 
-// 4. Validación del formato de la placa en el servidor
 if (!preg_match('/^[A-Z]{3}[0-9]{3}$/', $placa)) {
-    header('Location: cars.php?error=El formato de la placa es incorrecto. Deben ser 3 letras mayúsculas y 3 números.');
+    header('Location: cars.php?error=Formato de placa inválido');
     exit();
 }
 
-// 5. Iniciar transacción
 $conn->begin_transaction();
 
 try {
-    // 6. Insertar datos principales del vehículo (con descripción)
+    // CORRECCIÓN: Tipos de datos -> s=string, i=integer, d=double
+    // placa(s), marca(s), modelo(s), anio(i), precio(d), estado(s), vendedor(i), desc(s)
     $sql_vehiculo = "INSERT INTO vehiculos (placa, marca, modelo, anio, precio_lista, estado, vendedor_id, descripcion) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
     $stmt_vehiculo = $conn->prepare($sql_vehiculo);
-    // Se incluye la variable $estado en la consulta
-    $stmt_vehiculo->bind_param("sssissis", $placa, $marca, $modelo, $anio, $precio_lista, $estado, $vendedor_id, $descripcion);
+    $stmt_vehiculo->bind_param("sssidsis", $placa, $marca, $modelo, $anio, $precio_lista, $estado, $vendedor_id, $descripcion);
     $stmt_vehiculo->execute();
 
-    // 7. Obtener el ID del vehículo insertado
     $vehiculo_id = $conn->insert_id;
-    if ($vehiculo_id == 0) {
-        throw new Exception("No se pudo obtener el ID del nuevo vehículo.");
-    }
 
-    // 8. Procesar y guardar las imágenes subidas
-    if (isset($_FILES['imagenes']) && count($_FILES['imagenes']['name']) > 0 && $_FILES['imagenes']['error'][0] != 4) {
+    if (isset($_FILES['imagenes']) && count($_FILES['imagenes']['name']) > 0) {
         $directorio_subidas = __DIR__ . '/../../uploads/';
+        if (!file_exists($directorio_subidas)) { mkdir($directorio_subidas, 0777, true); }
+        
         $es_primera_imagen = true;
+        // Tipos MIME permitidos
+        $allowed_mime_types = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
 
         foreach ($_FILES['imagenes']['name'] as $key => $name) {
             if ($_FILES['imagenes']['error'][$key] == 0) {
-                $nombre_temporal = $_FILES['imagenes']['tmp_name'][$key];
+                $tmp_name = $_FILES['imagenes']['tmp_name'][$key];
+                
+                // VALIDACIÓN DE SEGURIDAD (MIME TYPE)
+                $finfo = new finfo(FILEINFO_MIME_TYPE);
+                $mime_type = $finfo->file($tmp_name);
+                
+                if (!in_array($mime_type, $allowed_mime_types)) {
+                    throw new Exception("El archivo $name no es una imagen válida.");
+                }
+
                 $nombre_archivo_unico = uniqid() . '-' . basename($name);
                 $ruta_archivo_final = $directorio_subidas . $nombre_archivo_unico;
 
-                if (move_uploaded_file($nombre_temporal, $ruta_archivo_final)) {
+                if (move_uploaded_file($tmp_name, $ruta_archivo_final)) {
                     $imagen_url_db = 'uploads/' . $nombre_archivo_unico;
                     $es_principal = $es_primera_imagen ? 1 : 0;
 
@@ -67,30 +68,19 @@ try {
                     $stmt_imagen = $conn->prepare($sql_imagen);
                     $stmt_imagen->bind_param("isi", $vehiculo_id, $imagen_url_db, $es_principal);
                     $stmt_imagen->execute();
-                    $stmt_imagen->close();
-
+                    
                     $es_primera_imagen = false;
                 }
             }
         }
-    } else {
-        throw new Exception("Es obligatorio subir al menos una imagen para el vehículo.");
     }
 
-    // 9. Si todo salió bien, confirmar los cambios
     $conn->commit();
-    $stmt_vehiculo->close();
-    $conn->close();
-
-    // Redirección en caso de ÉXITO
     header('Location: cars.php?status=success');
     exit();
 
 } catch (Exception $e) {
-    // 10. Si algo falló, revertir todos los cambios
     $conn->rollback();
-    
-    // Redirección en caso de ERROR
     header('Location: cars.php?error=' . urlencode($e->getMessage()));
     exit();
 }

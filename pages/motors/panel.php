@@ -4,15 +4,27 @@ require_once(__DIR__ . '/../../includes/conexion.php');
 
 // Si el usuario no está autenticado, redirigir
 if (!isset($_SESSION['autenticado'])) {
-    header('Location: acceso.php');
+    header('Location: ../../includes/acceso.php');
     exit();
 }
 
 // Obtener datos del usuario
 $rol = $_SESSION['usuario_rol'];
 $id = $_SESSION['usuario_id'];
-$tabla = ($rol == 'administrador') ? 'administradores' : $rol . 'es';
-$id_column = ($rol == 'administrador') ? 'admin_id' : $rol . '_id';
+
+// --- CORRECCIÓN DEL ERROR DE TABLA 'CLIENTEES' ---
+// Definimos manualmente la tabla y el ID según el rol para evitar errores de plural
+if ($rol == 'administrador') {
+    $tabla = 'administradores';
+    $id_column = 'admin_id';
+} elseif ($rol == 'vendedor') {
+    $tabla = 'vendedores';
+    $id_column = 'vendedor_id';
+} else {
+    // Caso para cliente
+    $tabla = 'clientes';
+    $id_column = 'cliente_id';
+}
 
 $sql_usuario = "SELECT nombre, apellido, email, telefono FROM {$tabla} WHERE {$id_column} = ? LIMIT 1";
 $stmt_usuario = $conn->prepare($sql_usuario);
@@ -63,7 +75,7 @@ if ($view == 'vehiculos' && ($rol == 'vendedor' || $rol == 'administrador')) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mi Panel - Motors And Dealers</title>
-    <link rel="stylesheet" href="/NUEVO_FROME/assets/css/style.css">
+    <link rel="stylesheet" href="<?php echo BASE_URL; ?>assets/css/style.css">
     <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
     <style>
         /* Estilos específicos del panel */
@@ -81,9 +93,8 @@ if ($view == 'vehiculos' && ($rol == 'vendedor' || $rol == 'administrador')) {
         .stat-info p { font-size: 1.8rem; font-weight: 700; color: #333; margin: 0; }
         .stat-icon { font-size: 2.5rem; color: #eee; }
 
-        /* Estilos para el botón de vender (Punto A) */
         .actions .sold-btn { 
-            color: #28a745; /* Verde */
+            color: #28a745; 
             font-size: 1.4rem;
             margin-left: 8px;
         }
@@ -91,7 +102,6 @@ if ($view == 'vehiculos' && ($rol == 'vendedor' || $rol == 'administrador')) {
             color: #1e7e34; 
             transform: scale(1.1); 
         }
-        /* Botón deshabilitado visualmente si ya está vendido */
         .actions .sold-btn.disabled {
             color: #ccc;
             pointer-events: none;
@@ -105,7 +115,7 @@ if ($view == 'vehiculos' && ($rol == 'vendedor' || $rol == 'administrador')) {
 
     <div class="container panel-header">
         <h1>Panel de Usuario</h1>
-        <span>Bienvenido de nuevo, <?php echo htmlspecialchars($_SESSION['usuario_nombre']); ?>.</span>
+        <span>Bienvenido de nuevo, <?php echo htmlspecialchars($usuario['nombre']); ?>.</span>
     </div>
     
     <div class="panel-layout">
@@ -118,15 +128,18 @@ if ($view == 'vehiculos' && ($rol == 'vendedor' || $rol == 'administrador')) {
             <nav class="panel-nav">
                 <ul>
                     <li><a href="panel.php?view=datos" class="<?php echo ($view == 'datos') ? 'active' : ''; ?>"><i class='bx bxs-user-detail'></i> Mis Datos</a></li>
-                    <li><a href="panel.php?view=vehiculos" class="<?php echo ($view == 'vehiculos') ? 'active' : ''; ?>"><i class='bx bxs-car'></i> Mis Vehículos</a></li>
-                    <li><a href="panel.php?view=dashboard" class="<?php echo ($view == 'dashboard') ? 'active' : ''; ?>"><i class='bx bxs-dashboard'></i> Dashboard</a></li>
+                    
+                    <?php if($rol == 'vendedor' || $rol == 'administrador'): ?>
+                        <li><a href="panel.php?view=vehiculos" class="<?php echo ($view == 'vehiculos') ? 'active' : ''; ?>"><i class='bx bxs-car'></i> Mis Vehículos</a></li>
+                        <li><a href="panel.php?view=dashboard" class="<?php echo ($view == 'dashboard') ? 'active' : ''; ?>"><i class='bx bxs-dashboard'></i> Dashboard</a></li>
+                    <?php endif; ?>
                 </ul>
             </nav>
         </aside>
 
         <main class="panel-content">
             
-            <?php if ($view == 'dashboard'): ?>
+            <?php if ($view == 'dashboard' && ($rol == 'vendedor' || $rol == 'administrador')): ?>
             <div class="content-card">
                 <h3>Resumen de Actividad</h3>
                 <p class="subtitle">Estadísticas generales de tus ventas e inventario.</p>
@@ -175,7 +188,7 @@ if ($view == 'vehiculos' && ($rol == 'vendedor' || $rol == 'administrador')) {
                 </form>
             </div>
 
-            <?php elseif ($view == 'vehiculos'): ?>
+            <?php elseif ($view == 'vehiculos' && ($rol == 'vendedor' || $rol == 'administrador')): ?>
             <div class="content-card vehicle-list">
                 <h3>Mis Vehículos Publicados</h3>
                 <p class="subtitle">Aquí puedes administrar los vehículos que has subido al inventario.</p>
@@ -195,11 +208,14 @@ if ($view == 'vehiculos' && ($rol == 'vendedor' || $rol == 'administrador')) {
                         <tr><th>Vehículo</th><th>Estado</th><th>Precio</th><th>Acciones</th></tr>
                     </thead>
                     <tbody>
-                        <?php foreach($mis_vehiculos as $vehiculo): ?>
+                        <?php foreach($mis_vehiculos as $vehiculo): 
+                            // Construir ruta de imagen usando BASE_URL si está disponible
+                            $img_src = !empty($vehiculo['imagen_principal']) ? BASE_URL . $vehiculo['imagen_principal'] : BASE_URL . 'assets/img/placeholder.png';
+                        ?>
                         <tr>
                             <td>
                                 <div class="vehicle-info">
-                                    <img src="../../<?php echo htmlspecialchars($vehiculo['imagen_principal'] ?? 'assets/img/placeholder.png'); ?>" class="vehicle-image">
+                                    <img src="<?php echo $img_src; ?>" class="vehicle-image">
                                     <span><?php echo htmlspecialchars($vehiculo['marca'] . ' ' . $vehiculo['modelo']); ?></span>
                                 </div>
                             </td>

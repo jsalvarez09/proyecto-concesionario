@@ -8,15 +8,15 @@ $currentPage = basename($_SERVER['SCRIPT_NAME']);
 ?>
 <header>
     <div class="nav container">
-        <a href="/NUEVO_FROME/index.php" class="logo">Motors <span>And</span> Dealers</a>
+        <a href="<?php echo BASE_URL; ?>index.php" class="logo">Motors <span>And</span> Dealers</a>
         <ul class="navbar">
-            <li><a href="/NUEVO_FROME/index.php" class="<?php echo ($currentPage == 'index.php') ? 'active' : ''; ?>">Inicio</a></li>
-            <li><a href="/NUEVO_FROME/pages/motors/cars.php" class="<?php echo in_array($currentPage, ['cars.php', 'vehiculo_detalles.php', 'editar_vehiculo.php']) ? 'active' : ''; ?>">Vehículos</a></li>
+            <li><a href="<?php echo BASE_URL; ?>index.php" class="<?php echo ($currentPage == 'index.php') ? 'active' : ''; ?>">Inicio</a></li>
+            <li><a href="<?php echo BASE_URL; ?>pages/motors/cars.php" class="<?php echo in_array($currentPage, ['cars.php', 'vehiculo_detalles.php', 'editar_vehiculo.php']) ? 'active' : ''; ?>">Vehículos</a></li>
             <?php if(isset($_SESSION['autenticado'])): ?>
-                <li><a href="/NUEVO_FROME/pages/motors/panel.php" class="<?php echo ($currentPage == 'panel.php') ? 'active' : ''; ?>">Mi Panel</a></li>
-                <li><a href="/NUEVO_FROME/includes/logout.php">Cerrar Sesión</a></li>
+                <li><a href="<?php echo BASE_URL; ?>pages/motors/panel.php" class="<?php echo ($currentPage == 'panel.php') ? 'active' : ''; ?>">Mi Panel</a></li>
+                <li><a href="<?php echo BASE_URL; ?>includes/logout.php">Cerrar Sesión</a></li>
             <?php else: ?>
-                <li><a href="/NUEVO_FROME/includes/acceso.php" class="<?php echo ($currentPage == 'acceso.php') ? 'active' : ''; ?>">Iniciar Sesión</a></li>
+                <li><a href="<?php echo BASE_URL; ?>includes/acceso.php" class="<?php echo ($currentPage == 'acceso.php') ? 'active' : ''; ?>">Iniciar Sesión</a></li>
             <?php endif; ?>
         </ul>
 

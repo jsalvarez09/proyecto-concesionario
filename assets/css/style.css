@@ -642,6 +642,7 @@ header .logo span {
     border-radius: 5px;
     font-size: 0.9rem;
     background: #f6f6f6;
+    appearance: textfield;
     -moz-appearance: textfield;
 }
 .range-inputs input::-webkit-outer-spin-button,
