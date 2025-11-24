@@ -56,6 +56,7 @@ El proyecto ha sido construido utilizando tecnologías nativas para garantizar r
 ├── 📄 database.sql      # Script de importación de la Base de Datos
 ├── 📄 index.php         # Página de inicio (Landing Page)
 └── 📄 README.md         # Documentación del proyecto
+```
 
 🚀 Instalación y Configuración
 
