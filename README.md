@@ -94,7 +94,7 @@ Nota: Si usas XAMPP por defecto (user: root, pass: vacío), no necesitas cambiar
 
 5. ¡Listo!
 
-Abre tu navegador e ingresa a: http://localhost/NOMBRE_DE_TU_CARPETA/📸 
+Abre tu navegador e ingresa a: http://localhost/NUEVO_FROME/📸 
 
 ## 👤 Autor
 
